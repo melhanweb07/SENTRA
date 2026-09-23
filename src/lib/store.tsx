@@ -14,6 +14,7 @@ import {
 } from "./types";
 import { uid } from "./utils";
 import { getFirebaseClient, isFirebaseConfigured } from "@/lib/firebase";
+import { getRoleTitle, inferRoleFromEmail, resolveFirebaseRole } from "@/lib/firebase-role";
 
 const STORAGE_KEY = "flowminds_db_v1";
 
@@ -118,13 +119,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const actions = useMemo<StoreValue>(() => {
     const currentUser = (draft: DB) => draft.users.find((u) => u.id === draft.session.userId);
-    const inferRoleFromEmail = (value?: string | null): User["role"] => {
-      const email = (value || "").toLowerCase();
-      if (email.includes("admin")) return "ADMIN";
-      if (email.includes("counsellor")) return "COUNSELLOR";
-      if (email.includes("officer")) return "SUPPORT_OFFICER";
-      return "COUNSELLOR";
-    };
 
     return {
       db,
@@ -137,8 +131,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         if (isFirebaseConfigured && firebaseClient) {
           try {
             const result = await signInWithEmailAndPassword(firebaseClient.auth, trimmedEmail, password);
-            const roleClaim = (await result.user.getIdTokenResult()).claims.role as User["role"] | undefined;
-            const resolvedRole = roleClaim || inferRoleFromEmail(result.user.email);
+            const tokenResult = await result.user.getIdTokenResult();
+            const resolvedRole = resolveFirebaseRole(tokenResult.claims.role, result.user.email) || inferRoleFromEmail(result.user.email);
 
             setDb((prev) => {
               if (!prev) return prev;
@@ -150,8 +144,13 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
                 email: trimmedEmail,
                 password: password,
                 role: resolvedRole,
-                title: resolvedRole === "ADMIN" ? "State Administrator" : resolvedRole === "SUPPORT_OFFICER" ? "Support Officer" : "Senior Counsellor",
+                title: getRoleTitle(resolvedRole),
               };
+
+              if (existing) {
+                existing.role = resolvedRole;
+                existing.title = getRoleTitle(resolvedRole);
+              }
 
               if (!existing) next.users.unshift(chosenUser);
               next.session.userId = chosenUser.id;

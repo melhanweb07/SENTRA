@@ -70,12 +70,19 @@ export default function Home() {
           <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-medium text-indigo-300">
             Smart India Hackathon 2026 · Problem Statement SIH26093
           </p>
+          <div className="mb-6 flex items-center justify-center">
+            <span className="rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">
+              DEMO MODE
+            </span>
+          </div>
           <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
-            AI-Powered Real-Time Stress & Vulnerability Assessment
+            SENTRA — AI-Assisted Real-Time Stress & Vulnerability Assessment
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-300">
-            A decision-support layer for first-contact grievance handling. It listens, analyses and
-            explains — <span className="text-white font-medium">trained personnel verify and act</span>.
+            <span className="font-medium text-white">AI recommends.</span> Human decides. This prototype helps triage first-contact distress and support needs with explainable, consent-based case assessment.
+          </p>
+          <p className="mx-auto mt-4 max-w-2xl text-sm text-slate-400">
+            All cases and assessments shown are simulated demonstration data. This system is not a clinical diagnosis and all recommendations require trained human verification.
           </p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link href="/login" className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-6 py-3 font-medium hover:bg-indigo-400">
