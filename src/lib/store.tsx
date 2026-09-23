@@ -128,6 +128,24 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const trimmedEmail = email.trim();
         const firebaseClient = getFirebaseClient();
 
+        const demoUser = db?.users.find(
+          (x) => x.email.toLowerCase() === trimmedEmail.toLowerCase() && x.password === password
+        );
+
+        if (demoUser) {
+          setDb((prev) => {
+            if (!prev) return prev;
+            const next = clone(prev);
+            next.session.userId = demoUser.id;
+            next.audit.unshift({
+              id: uid("aud"), at: nowIso(), actorId: demoUser.id, actorName: demoUser.name,
+              action: "LOGIN_SUCCESS", details: `${demoUser.role} signed in using demo credentials`, severity: "INFO",
+            });
+            return next;
+          });
+          return { ok: true };
+        }
+
         if (isFirebaseConfigured && firebaseClient) {
           try {
             const result = await signInWithEmailAndPassword(firebaseClient.auth, trimmedEmail, password);
